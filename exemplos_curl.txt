@@ -1,0 +1,185 @@
+# ========================================
+# EXEMPLOS DE REQUISIÇÕES CURL - CRM APOLLO API
+# ========================================
+
+# BASE URL: http://localhost:8000
+# Documentação: http://localhost:8000/docs
+
+# ========================================
+# 1. VERIFICAR SE A API ESTÁ FUNCIONANDO
+# ========================================
+
+# Endpoint raiz
+curl -X GET "http://localhost:8000/"
+
+# Health check
+curl -X GET "http://localhost:8000/health"
+
+# ========================================
+# 2. TESTE RÁPIDO (ENDPOINT DE TESTE)
+# ========================================
+
+curl -X POST "http://localhost:8000/test-lead" \
+  -H "Content-Type: application/json"
+
+# ========================================
+# 3. ENVIO COMPLETO DE LEAD
+# ========================================
+
+curl -X POST "http://localhost:8000/send-lead" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "credentials": {
+      "url": "BRU",
+      "user": "Ng==",
+      "pipeline": "0",
+      "token": "e106ef63d791eec2df9bfc4ab17d9f500a246fcf64dbac598da9ff231597232e"
+    },
+    "lead_data": {
+      "nome": "João Silva",
+      "email": "joao.silva@email.com",
+      "celular": "+5511999999999",
+      "cpf_ou_cnpj": "123.456.789-00",
+      "classificacao1": "Imóveis 400k e Parcela 1500",
+      "classificacao2": "Aluguel 1200 e financiamento",
+      "classificacao3": "Lead de publicidade",
+      "obs": "Cliente interessado em imóvel residencial",
+      "platform": "Google Ads"
+    }
+  }'
+
+# ========================================
+# 4. ENVIO SIMPLIFICADO DE LEAD
+# ========================================
+
+curl -X POST "http://localhost:8000/send-lead-simple?url=BRU&user=Ng==&pipeline=0&token=e106ef63d791eec2df9bfc4ab17d9f500a246fcf64dbac598da9ff231597232e" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "Maria Santos",
+    "email": "maria.santos@email.com",
+    "celular": "+5511888888888",
+    "cpf_ou_cnpj": "987.654.321-00",
+    "classificacao1": "Lead Premium",
+    "obs": "Cliente VIP - Atendimento prioritário",
+    "platform": "Facebook"
+  }'
+
+# ========================================
+# 5. ENVIO MÍNIMO DE LEAD (CAMPOS OBRIGATÓRIOS)
+# ========================================
+
+curl -X POST "http://localhost:8000/send-lead-simple?url=BRU&user=Ng==&pipeline=0&token=e106ef63d791eec2df9bfc4ab17d9f500a246fcf64dbac598da9ff231597232e" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "Pedro Costa",
+    "email": "pedro.costa@email.com",
+    "celular": "+5511777777777",
+    "platform": "Website"
+  }'
+
+# ========================================
+# 6. EXEMPLO COM DADOS DE EMPRESA (CNPJ)
+# ========================================
+
+curl -X POST "http://localhost:8000/send-lead-simple?url=BRU&user=Ng==&pipeline=0&token=e106ef63d791eec2df9bfc4ab17d9f500a246fcf64dbac598da9ff231597232e" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "Empresa ABC Ltda",
+    "email": "contato@empresaabc.com",
+    "celular": "+5511666666666",
+    "cpf_ou_cnpj": "12.345.678/0001-90",
+    "classificacao1": "Empresa - Investimento Comercial",
+    "classificacao2": "Escritório 200m²",
+    "obs": "Empresa em expansão buscando nova sede",
+    "platform": "LinkedIn"
+  }'
+
+# ========================================
+# 7. TESTE DE ERRO (EMAIL INVÁLIDO)
+# ========================================
+
+curl -X POST "http://localhost:8000/send-lead-simple?url=BRU&user=Ng==&pipeline=0&token=e106ef63d791eec2df9bfc4ab17d9f500a246fcf64dbac598da9ff231597232e" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "nome": "Teste Erro",
+    "email": "email-invalido",
+    "celular": "+5511555555555",
+    "platform": "Teste"
+  }'
+
+# ========================================
+# 8. TESTE COM RESPOSTA FORMATADA (JSON)
+# ========================================
+
+# Para ver a resposta formatada em JSON:
+curl -X POST "http://localhost:8000/test-lead" \
+  -H "Content-Type: application/json" | python -m json.tool
+
+# ========================================
+# 9. TESTE DE PERFORMANCE
+# ========================================
+
+# Enviar múltiplas requisições rapidamente:
+for i in {1..5}; do
+  curl -X POST "http://localhost:8000/test-lead" \
+    -H "Content-Type: application/json" &
+done
+wait
+
+# ========================================
+# 10. TESTE COM TIMEOUT
+# ========================================
+
+curl -X POST "http://localhost:8000/send-lead-simple?url=BRU&user=Ng==&pipeline=0&token=e106ef63d791eec2df9bfc4ab17d9f500a246fcf64dbac598da9ff231597232e" \
+  -H "Content-Type: application/json" \
+  --max-time 30 \
+  -d '{
+    "nome": "Teste Timeout",
+    "email": "timeout@test.com",
+    "celular": "+5511444444444",
+    "platform": "Teste"
+  }'
+
+# ========================================
+# INFORMAÇÕES ADICIONAIS
+# ========================================
+
+# CAMPOS OBRIGATÓRIOS:
+# - nome (string, 1-255 caracteres)
+# - email (email válido)
+# - celular (string, mínimo 10 caracteres)
+# - platform (string, padrão: "API")
+
+# CAMPOS OPCIONAIS:
+# - cpf_ou_cnpj
+# - classificacao1
+# - classificacao2
+# - classificacao3
+# - obs
+
+# CREDENCIAIS NECESSÁRIAS:
+# - url: Identificador da URL (ex: "BRU")
+# - user: Identificador do usuário (ex: "Ng==")
+# - pipeline: ID do pipeline (ex: "0")
+# - token: Token de autenticação
+
+# CÓDIGOS DE RESPOSTA:
+# - 200: Sucesso
+# - 201: Lead criado com sucesso
+# - 400: Dados inválidos
+# - 401: Credenciais inválidas
+# - 408: Timeout
+# - 500: Erro interno do servidor
+
+# ========================================
+# DOCKER (SE USANDO CONTAINER)
+# ========================================
+
+# Construir imagem:
+# docker build -t crm-apollo-api .
+
+# Executar container:
+# docker run -p 8000:8000 crm-apollo-api
+
+# Testar no container:
+# curl -X GET "http://localhost:8000/health"
